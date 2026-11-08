@@ -207,28 +207,27 @@ struct {
 	i_4b mapX;
 	i_4b mapY;
 } convert_parameters;
-i_4b static wrd_comand(t_sym(*wrd)[128]) {
+i_4b static wrd_comand(t_sym wrd[128]) {
 	i_4b cmd = 0;
-
-	if ((*wrd[0] == 'e' || *wrd[0] == 'E')
-		&& (*wrd[1] == 'x' || *wrd[1] == 'X')
-		&& (*wrd[2] == 'i' || *wrd[2] == 'I')
-		&& (*wrd[3] == 't' || *wrd[3] == 'T')) return -1;
+	if (   (wrd[0] == 'e' || wrd[0] == 'E')
+		&& (wrd[1] == 'x' || wrd[1] == 'X')
+		&& (wrd[2] == 'i' || wrd[2] == 'I')
+		&& (wrd[3] == 't' || wrd[3] == 'T') ) return -1;
 
 	for (int i = 0; i < 124; ++i) {
-		if (*wrd[i] == '\0') break;
-		if (*wrd[i] == '-' && *wrd[i + 2] == ' ') {
-			if (*wrd[i + 1] == 's') {
+		if (wrd[i] == '\0') break;
+		if (wrd[i] == '-' && wrd[i + 2] == ' ') {
+			if (wrd[i + 1] == 's') {
 				for (int j = i; j < 124; ++j) {
-					*wrd[j] = *wrd[j + 3];
-					if (*wrd[j + 3] == '\0') break;
+					wrd[j] = wrd[j + 3];
+					if (wrd[j + 3] == '\0') break;
 				}
 				cmd += 1;
 			}
-			if (*wrd[i + 1] == 'v') {
+			if (wrd[i + 1] == 'v') {
 				for (int j = i; j < 124; ++j) {
-					*wrd[j] = *wrd[j + 3];
-					if (*wrd[j + 3] == '\0') break;
+					wrd[j] = wrd[j + 3];
+					if (wrd[j + 3] == '\0') break;
 				}
 				cmd += 10;
 			}
@@ -269,10 +268,8 @@ i_4b Simple_Convert_PNG_to_OBJ() {
 			vert.id = image_.getPix(x, y, &color);
 			vert.x = convert_parameters.pix_size * static_cast<f_4b>(x);
 			vert.y = convert_parameters.pix_size * static_cast<f_4b>(y);
-			vert.z = convert_parameters.pix_size * (
-				 static_cast<f_4b>(color[2]) +
-				(static_cast<f_4b>(color[1]) / 256.0f) +
-				(static_cast<f_4b>(color[0]) / 512.0f) );
+			vert.z = static_cast<f_4b>(color[0]) +
+				( (static_cast<f_4b>(color[1]) + static_cast<f_4b>(color[2]) ) / 65536.0f);
 			obj_File
 				<< "v "
 				<< std::setprecision(6) << vert.x << ' '
@@ -330,7 +327,7 @@ u_4b main(u_4b argc, t_wrd argv[]) {
 	while (true) {
 		std::cout << "\n> WRITE FILE NAME: ";
 		std::cin >> inp_txt;
-		command = wrd_comand(&inp_txt);
+		command = wrd_comand(inp_txt);
 		if (command < 0) break;
 		convert_parameters.file_name = inp_txt;
 		Simple_Convert_PNG_to_OBJ();
